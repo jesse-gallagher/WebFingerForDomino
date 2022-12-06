@@ -1,31 +1,49 @@
-# NSF Router
+# WebFinger For Domino
 
-This project can be installed as an OSGi plugin on an HCL Domino server to allow custom routing within an NSF.
+This project provides a minimal subset of the [WebFinger specification](https://www.rfc-editor.org/rfc/rfc7033) geared specifically towards allowing for Mastodon lookups of a username based on a Domino server's host name and directory.
 
 ## Usage
 
-Install the plugin on your server in your preferred way, such as via an NSF Update Site. Once it's installed, add a file resource named `nsfrouter.properties` to the design of your NSF. This file should contain regular-expression keys to their replacement values. For example:
+Install the plugin on your server in your preferred way, such as via an NSF Update Site.
 
+Once it's installed, add several fields to the Person document of any user you would like to make available to this service:
+
+- `WebFingerEnable` should be the text value "1" if the user should be included in WebFinger lookups at all
+- `WebFingerAliases` is an optional multi-value text field of URLs to include in the `aliases` property of the response, such as a blog URL
+- `WebFingerProfile` should be the main social profile page for the user, such as "https://some.mastodon/@myuser"
+- `WebFingerMastodon` should be the text value "1" if the below Mastodon fields should be used to generate Mastodon/ActivityPub links
+- `MastodonUsername` should be the base user name of the user on their Mastodon host, such as "myuser"
+- `MastodonHost` should be the host name or base URL of the Mastodon instance, such as "some.mastodon" or "https://some.mastodon". When no procol is specified, "https" is assumed
+
+When configured, the user is accessible via a URL like "https://some.domino/.well-known/webfinger?resource=acct:myuser@some.domino". This will emit a payload like:
+
+```json
+{
+  "subject": "acct:myuser@some.domino",
+  "aliases": [
+    "https://some.blog"
+  ],
+  "links": [
+    {
+      "rel": "http://webfinger.net/rel/profile-page",
+      "href": "https://some.mastodon/@myuser"
+    },
+    {
+      "rel": "self",
+      "href": "https://some.mastodon/users/myuser",
+      "type": "application/activity+json"
+    },
+    {
+      "template": "https://some.mastodon/authorize_interaction?uri={uri}",
+      "rel": "http://ostatus.org/schema/1.0/subscribe"
+    }
+  ]
+}
 ```
-foo=somepage.xsp
-foo/(.*)=somepage.xsp?key=$1
-```
 
-Note: this file can also be placed in `Code/Java` or other equivalent places in the root classpath. When created as a File Resource design element, you should mark it as not shown on the web.
+## Requirements
 
-## Regex Matching
-
-Regular Expression matching and replacement is done with the standard Java `java.util.regex` capabilities. Additionally, they must match the entire checked path info portion, though the `^` and `$` terminators are optional. For example, the pattern `foo/(\w+)` will match `foo/bar`, but not `foo/bar/` or `foo/bar/baz`.
-
-Bear in mind that regexes should be encoded and escaped according to the rules of Java Properties files. In practice, this primarily means that backslashes must be doubled. For example, the a replacement for the pattern `foo/(\w+)` should be represented like this in the properties file:
-
-```
-foo/(\\w+)=somepage.xsp?bit=$1
-```
-
-## Limitations
-
-This project will not redirect URLs that are matched by a different `HttpService` implementation. In practice, this means that it won't match ".xsp" URLs or other specialty paths handled by the Java layer of Domino's HTTP stack.
+- Domino 9.0.1FP10 (tested only on 12.0.2)
 
 ## License
 
