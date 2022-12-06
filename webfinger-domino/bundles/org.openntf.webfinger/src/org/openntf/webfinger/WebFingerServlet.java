@@ -134,7 +134,7 @@ public class WebFingerServlet extends HttpServlet {
 				
 				
 				resp.setStatus(HttpServletResponse.SC_OK);
-				resp.setContentType("application/json");
+				resp.setContentType("application/jrd+json");
 				JsonWriter jw = new JsonWriter(w, false);
 				jw.outObject(result);
 				
