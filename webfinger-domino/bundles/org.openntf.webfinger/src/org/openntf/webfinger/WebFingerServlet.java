@@ -20,7 +20,6 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.UncheckedIOException;
 import java.io.UnsupportedEncodingException;
-import java.net.URI;
 import java.net.URLEncoder;
 import java.util.Vector;
 
@@ -113,7 +112,7 @@ public class WebFingerServlet extends HttpServlet {
 					linksJson.add(linkObj);
 				}
 				
-				if(StringUtil.isNotEmpty(mastodonHost)) {
+				if("1".equals(includeMastodon) && StringUtil.isNotEmpty(mastodonHost)) {
 					if(!(mastodonHost.startsWith("http://") || mastodonHost.startsWith("https://"))) {
 						mastodonHost = "https://" + mastodonHost;
 					}
