@@ -8,7 +8,7 @@
 	<packaging>pom</packaging>
 
 	<name>WebFinger for Domino</name>
-	<url></url>
+	<url>https://github.com/jesse-gallagher/WebFingerForDomino</url>
 	<inceptionYear>2022</inceptionYear>
 
 	<modules>
@@ -24,11 +24,11 @@
 	</properties>
 
 	<scm>
-		<url></url>
-		<connection>scm:git:</connection>
+		<url>https://github.com/jesse-gallagher/WebFingerForDomino</url>
+		<connection>scm:git:https://github.com/jesse-gallagher/WebFingerForDomino.git</connection>
 	</scm>
 	<issueManagement>
-		<url></url>
+		<url>https://github.com/jesse-gallagher/WebFingerForDomino/issues</url>
 	</issueManagement>
 	<licenses>
 		<license>
@@ -54,16 +54,6 @@
 
 	<build>
 		<plugins>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-eclipse-plugin</artifactId>
-				<version>2.9</version>
-				<configuration>
-					<source>${compiler}</source>
-					<target>${compiler}</target>
-					<compilerArgument>-err:-forbidden,discouraged,deprecation</compilerArgument>
-				</configuration>
-			</plugin>
 			<plugin>
 				<groupId>org.eclipse.tycho</groupId>
 				<artifactId>tycho-maven-plugin</artifactId>
