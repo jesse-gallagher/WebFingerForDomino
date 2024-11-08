@@ -41,9 +41,24 @@ When configured, the user is accessible via a URL like "https://some.domino/.wel
 }
 ```
 
+### PGP Keys
+
+Additionally, you can specify a PGP key in your user document and have it included in your WebFinger profile. To do that, specify these items:
+
+- `pgpPublicKey` should contain the full PGP public key, including the "BEGIN" and "END" lines
+- `pgpFingerprint` can optionally contain the shorthand fingerprint of your key
+- `pgpAlgorithm` can optionally contain the algorithm used for your key
+- `WebFingerPGP` should be set to "1" to include the entry in your profile
+
+Additionally, when a PGP key is present, the key will be available at a URL like "https://some.domino/.webfinger-pgp-key/myuser@some.domino".
+
+### Extensibility
+
+The output of the profile JSON can be extended by registering an IBM-Commons-compatible extension class implementing `org.openntf.webfinger.ext.WebFingerContributor`. These contributor classes can request additional items to read from the directory and then append values to the result JSON to be emitted to the client.
+
 ## Requirements
 
-- Domino 9.0.1FP10 (tested only on 12.0.2)
+- Domino 14 or above
 
 ## License
 

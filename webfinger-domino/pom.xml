@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.openntf</groupId>
 	<artifactId>webfinger-domino</artifactId>
-	<version>1.0.0</version>
+	<version>2.0.0</version>
 	<packaging>pom</packaging>
 
 	<name>WebFinger for Domino</name>
@@ -13,14 +13,14 @@
 
 	<modules>
 		<module>bundles/org.openntf.webfinger</module>
-		<module>releng/org.openntf.webfinger.updatesite</module>
 		<module>releng/webfinger-domino-dist</module>
 	</modules>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<tycho-version>1.7.0</tycho-version>
-		<compiler>1.8</compiler>
+		<maven.compiler.source>17</maven.compiler.source>
+		<maven.compiler.target>17</maven.compiler.target>
+		<maven.compiler.release>17</maven.compiler.release>
 	</properties>
 
 	<scm>
@@ -38,119 +38,54 @@
 			<comments>A business-friendly OSS license</comments>
 		</license>
 	</licenses>
-
-	<repositories>
+	
+	<distributionManagement>
 		<repository>
-			<id>Luna</id>
-			<layout>p2</layout>
-			<url>https://download.eclipse.org/releases/neon/</url>
+			<id>artifactory.openntf.org</id>
+			<name>artifactory.openntf.org</name>
+			<url>https://artifactory.openntf.org/openntf</url>
 		</repository>
-		<repository>
-			<id>notes</id>
-			<layout>p2</layout>
-			<url>${notes-platform}</url>
-		</repository>
-	</repositories>
+	</distributionManagement>
+	
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>com.hcl.domino</groupId>
+				<artifactId>NCSO</artifactId>
+				<version>12.0.2</version>
+			</dependency>
+			<dependency>
+				<groupId>org.glassfish.corba</groupId>
+				<artifactId>glassfish-corba-omgapi</artifactId>
+				<version>4.2.5</version>
+			</dependency>
+			<dependency>
+				<groupId>javax.servlet</groupId>
+				<artifactId>servlet-api</artifactId>
+				<version>2.5</version>
+			</dependency>
+			<dependency>
+				<groupId>com.ibm.sbt</groupId>
+				<artifactId>com.ibm.commons</artifactId>
+				<version>9.0.0</version>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
 
 	<build>
 		<plugins>
 			<plugin>
-				<groupId>org.eclipse.tycho</groupId>
-				<artifactId>tycho-maven-plugin</artifactId>
-				<version>${tycho-version}</version>
-				<extensions>true</extensions>
-			</plugin>
-			<plugin>
-				<groupId>org.eclipse.tycho</groupId>
-				<artifactId>tycho-versions-plugin</artifactId>
-				<version>${tycho-version}</version>
-			</plugin>
-			<plugin>
-				<groupId>org.eclipse.tycho</groupId>
-				<artifactId>tycho-packaging-plugin</artifactId>
-				<version>${tycho-version}</version>
-				<configuration>
-					<strictVersions>false</strictVersions>
-				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>org.eclipse.tycho</groupId>
-				<artifactId>tycho-compiler-plugin</artifactId>
-				<version>${tycho-version}</version>
-				<configuration>
-					<source>${compiler}</source>
-					<target>${compiler}</target>
-					<compilerArgument>-err:-forbidden,discouraged,deprecation</compilerArgument>
-				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>org.eclipse.tycho</groupId>
-				<artifactId>tycho-source-plugin</artifactId>
-				<version>${tycho-version}</version>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-source-plugin</artifactId>
+				<version>3.3.1</version>
 				<executions>
 					<execution>
-						<id>plugin-source</id>
+						<id>attach-sources</id>
 						<goals>
-							<goal>plugin-source</goal>
+							<goal>jar-no-fork</goal>
 						</goals>
 					</execution>
 				</executions>
-			</plugin>
-			<plugin>
-				<groupId>org.eclipse.tycho</groupId>
-				<artifactId>target-platform-configuration</artifactId>
-				<version>${tycho-version}</version>
-				<configuration>
-
-					<pomDependencies>consider</pomDependencies>
-					<dependency-resolution>
-						<extraRequirements>
-							<requirement>
-								<type>eclipse-plugin</type>
-								<id>com.ibm.notes.java.api.win32.linux</id>
-								<versionRange>9.0.1</versionRange>
-							</requirement>
-						</extraRequirements>
-					</dependency-resolution>
-
-					<filters>
-						<!-- work around Equinox bug 348045 -->
-						<filter>
-							<type>p2-installable-unit</type>
-							<id>org.eclipse.equinox.servletbridge.extensionbundle</id>
-							<removeAll />
-						</filter>
-					</filters>
-
-					<environments>
-						<environment>
-							<os>linux</os>
-							<ws>gtk</ws>
-							<arch>x86</arch>
-						</environment>
-						<environment>
-							<os>linux</os>
-							<ws>gtk</ws>
-							<arch>x86_64</arch>
-						</environment>
-						<environment>
-							<os>win32</os>
-							<ws>win32</ws>
-							<arch>x86</arch>
-						</environment>
-						<environment>
-							<os>win32</os>
-							<ws>win32</ws>
-							<arch>x86_64</arch>
-						</environment>
-						<environment>
-							<os>macosx</os>
-							<ws>cocoa</ws>
-							<arch>x86_64</arch>
-						</environment>
-					</environments>
-					<resolver>p2</resolver>
-				</configuration>
 			</plugin>
 			
 			<plugin>
@@ -167,41 +102,52 @@
 			            <exclude>src/main/resources/**</exclude>
 						<exclude>**/build.properties</exclude>
 						<exclude>**/odp/AppProperties/database.properties</exclude>
-						<exclude>**/OSGI-INF/org.openntf.openliberty.wlp.*.xml</exclude>
-						<exclude>**/org/openntf/openliberty/domino/util/commons/**</exclude>
-						<exclude>**/org/openntf/openliberty/domino/util/json/**</exclude>
 					</excludes>
 					<properties>
 						<owner>Jesse Gallagher</owner>
-						<copyrightYear>2022</copyrightYear>
+						<copyrightYear>2024</copyrightYear>
 					</properties>
 					<mapping>
 						<java>SLASHSTAR_STYLE</java>
 					</mapping>
 				</configuration>
 			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-enforcer-plugin</artifactId>
+				<version>3.0.0-M1</version>
+				<executions>
+					<execution>
+						<id>enforce-maven-and-java</id>
+						<goals>
+							<goal>enforce</goal>
+						</goals>
+						<configuration>
+							<rules>
+								<requireMavenVersion>
+									<version>3.0.1</version>
+								</requireMavenVersion>
+								<requireJavaVersion>
+									<version>17</version>
+								</requireJavaVersion>
+							</rules>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
 		</plugins>
 		<pluginManagement>
 			<plugins>
 				<plugin>
-					<groupId>org.eclipse.tycho.extras</groupId>
-					<artifactId>tycho-p2-extras-plugin</artifactId>
-					<version>${tycho-version}</version>
+					<groupId>org.apache.felix</groupId>
+					<artifactId>maven-bundle-plugin</artifactId>
+					<version>5.1.9</version>
 				</plugin>
 				<plugin>
-				    <groupId>org.reficio</groupId>
+				    <groupId>org.openntf.maven</groupId>
 					<artifactId>p2-maven-plugin</artifactId>
-					<version>1.3.0</version>
-				</plugin>
-				<plugin>
-					<groupId>org.darwino</groupId>
-					<artifactId>p2sitexml-maven-plugin</artifactId>
-					<version>1.1.0</version>
-				</plugin>
-				<plugin>
-					<groupId>org.eclipse.tycho</groupId>
-					<artifactId>tycho-p2-repository-plugin</artifactId>
-					<version>${tycho-version}</version>
+					<version>3.1.2</version>
 				</plugin>
 				<plugin>
 					<groupId>org.codehaus.mojo</groupId>

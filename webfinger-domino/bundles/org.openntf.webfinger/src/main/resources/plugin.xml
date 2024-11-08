@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 
-    Copyright © 2022 Jesse Gallagher
+    Copyright (c) 2022-2024 Jesse Gallagher
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -20,5 +20,15 @@
 <plugin>
 	<extension id="org.openntf.webfinger.WebFingerServlet" name="webfingerservlet" point="org.eclipse.equinox.http.registry.servlets">
 		<servlet alias="/.well-known/webfinger" class="org.openntf.webfinger.WebFingerServlet"/>
+	</extension>
+	<extension id="org.openntf.webfinger.PGPServlet" name="webfingerservlet" point="org.eclipse.equinox.http.registry.servlets">
+		<servlet alias="/.webfinger-pgp-key" class="org.openntf.webfinger.pgp.PGPServlet"/>
+	</extension>
+	
+	<extension point="com.ibm.commons.Extension">
+		<service type="org.openntf.webfinger.ext.WebFingerContributor" class="org.openntf.webfinger.mastodon.MastodonContributor" />
+	</extension>
+	<extension point="com.ibm.commons.Extension">
+		<service type="org.openntf.webfinger.ext.WebFingerContributor" class="org.openntf.webfinger.pgp.PGPContributor" />
 	</extension>
 </plugin>
