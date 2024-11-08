@@ -26,6 +26,10 @@
 			<artifactId>com.ibm.commons</artifactId>
 			<scope>provided</scope>
 		</dependency>
+		<dependency>
+			<groupId>org.glassfish.corba</groupId>
+			<artifactId>glassfish-corba-omgapi</artifactId>
+		</dependency>
 	</dependencies>
 	
 	<build>

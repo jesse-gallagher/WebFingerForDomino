@@ -18,9 +18,9 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<maven.compiler.source>1.8</maven.compiler.source>
-		<maven.compiler.target>1.8</maven.compiler.target>
-		<maven.compiler.release>8</maven.compiler.release>
+		<maven.compiler.source>17</maven.compiler.source>
+		<maven.compiler.target>17</maven.compiler.target>
+		<maven.compiler.release>17</maven.compiler.release>
 	</properties>
 
 	<scm>
@@ -45,6 +45,11 @@
 				<groupId>com.hcl.domino</groupId>
 				<artifactId>NCSO</artifactId>
 				<version>12.0.2</version>
+			</dependency>
+			<dependency>
+				<groupId>org.glassfish.corba</groupId>
+				<artifactId>glassfish-corba-omgapi</artifactId>
+				<version>4.2.5</version>
 			</dependency>
 			<dependency>
 				<groupId>javax.servlet</groupId>

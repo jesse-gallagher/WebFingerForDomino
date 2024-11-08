@@ -43,7 +43,7 @@ When configured, the user is accessible via a URL like "https://some.domino/.wel
 
 ## Requirements
 
-- Domino 9.0.1FP10 (tested only on 12.0.2)
+- Domino 14 or above
 
 ## License
 
