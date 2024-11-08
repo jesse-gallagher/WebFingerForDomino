@@ -245,7 +245,7 @@
 										<artifact>
 											<id>${project.groupId}:org.openntf.webfinger:${project.version}</id>
 											<transitive>false</transitive>
-											<source>false</source>
+											<source>true</source>
 										</artifact>
 									</artifacts>
 							    </feature>
