@@ -8,5 +8,40 @@
 		<relativePath>../..</relativePath>
 	</parent>
 	<artifactId>org.openntf.webfinger</artifactId>
-	<packaging>eclipse-plugin</packaging>
+	<packaging>bundle</packaging>
+	
+	<dependencies>
+		<dependency>
+			<groupId>com.hcl.domino</groupId>
+			<artifactId>NCSO</artifactId>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>servlet-api</artifactId>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.ibm.sbt</groupId>
+			<artifactId>com.ibm.commons</artifactId>
+			<scope>provided</scope>
+		</dependency>
+	</dependencies>
+	
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.felix</groupId>
+				<artifactId>maven-bundle-plugin</artifactId>
+				<extensions>true</extensions>
+				
+				<configuration>
+					<instructions>
+						<Bundle-SymbolicName>${project.artifactId};singleton:=true</Bundle-SymbolicName>
+						<Export-Package></Export-Package>
+					</instructions>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
 </project>

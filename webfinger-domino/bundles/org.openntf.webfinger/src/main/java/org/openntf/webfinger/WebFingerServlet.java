@@ -34,7 +34,7 @@ import com.ibm.commons.util.io.json.JsonArray;
 import com.ibm.commons.util.io.json.JsonException;
 import com.ibm.commons.util.io.json.JsonJavaArray;
 import com.ibm.commons.util.io.json.JsonJavaObject;
-import com.ibm.commons.util.io.json.JsonObject;
+import com.ibm.commons.util.io.json.JsonObject; 
 import com.ibm.commons.util.io.json.util.JsonWriter;
 
 import lotus.domino.Directory;

@@ -34,17 +34,9 @@
 				<include>README.md</include>
 			</includes>
 		</fileSet>
-	</fileSets>
-	
-	<dependencySets>
-		<dependencySet>
-			<includes>
-				<include>org.openntf:org.openntf.webfinger.updatesite:*</include>
-			</includes>
-			
+		<fileSet>
+			<directory>${project.build.directory}/repository</directory>
 			<outputDirectory>UpdateSite</outputDirectory>
-			<unpack>true</unpack>
-			<useTransitiveDependencies>false</useTransitiveDependencies>
-		</dependencySet>
-	</dependencySets>
+		</fileSet>
+	</fileSets>
 </assembly>
