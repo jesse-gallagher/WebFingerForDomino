@@ -19,6 +19,9 @@ import com.ibm.commons.util.io.json.JsonObject;
 import org.openntf.webfinger.WebFingerContributor;
 
 public class MastodonContributor implements WebFingerContributor {
+	
+	public static final String REL_SELF = "self";
+	public static final String REL_SUBSCRIBE = "http://ostatus.org/schema/1.0/subscribe";
 
 	@Override
 	public Collection<String> getItems() {
@@ -26,7 +29,7 @@ public class MastodonContributor implements WebFingerContributor {
 	}
 
 	@Override
-	public void contribute(Map<String, List<?>> items, JsonObject root) throws JsonException {
+	public void contribute(Map<String, List<?>> items, JsonObject root, Collection<String> requestedRel) throws JsonException {
 		String includeMastodon = stringVal(items.get("WebFingerMastodon"));
 		String mastodonHost = stringVal(items.get("MastodonHost"));
 		String mastodonUsername = stringVal(items.get("MastodonUsername"));
@@ -38,18 +41,22 @@ public class MastodonContributor implements WebFingerContributor {
 				mastodonHost = "https://" + mastodonHost;
 			}
 			
-			if(StringUtil.isNotEmpty(mastodonUsername)) {
-				JsonObject self = new JsonJavaObject();
-				self.putJsonProperty("rel", "self");
-				self.putJsonProperty("type", "application/activity+json");
-				self.putJsonProperty("href", PathUtil.concat(mastodonHost, "/users/" + URLEncoder.encode(mastodonUsername, StandardCharsets.UTF_8), '/'));
-				linksJson.add(self);
+			if(requestedRel.isEmpty() || requestedRel.contains(REL_SELF)) {
+				if(StringUtil.isNotEmpty(mastodonUsername)) {
+					JsonObject self = new JsonJavaObject();
+					self.putJsonProperty("rel", "self");
+					self.putJsonProperty("type", "application/activity+json");
+					self.putJsonProperty("href", PathUtil.concat(mastodonHost, "/users/" + URLEncoder.encode(mastodonUsername, StandardCharsets.UTF_8), '/'));
+					linksJson.add(self);
+				}
 			}
 			
-			JsonObject subscribe = new JsonJavaObject();
-			subscribe.putJsonProperty("rel", "http://ostatus.org/schema/1.0/subscribe");
-			subscribe.putJsonProperty("template", PathUtil.concat(mastodonHost, "/authorize_interaction?uri={uri}", '/'));
-			linksJson.add(subscribe);
+			if(requestedRel.isEmpty() || requestedRel.contains(REL_SUBSCRIBE)) {
+				JsonObject subscribe = new JsonJavaObject();
+				subscribe.putJsonProperty("rel", "http://ostatus.org/schema/1.0/subscribe");
+				subscribe.putJsonProperty("template", PathUtil.concat(mastodonHost, "/authorize_interaction?uri={uri}", '/'));
+				linksJson.add(subscribe);
+			}
 		}
 	}
 }

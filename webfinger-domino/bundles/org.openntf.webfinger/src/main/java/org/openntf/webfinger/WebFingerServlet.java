@@ -20,7 +20,9 @@ import static org.openntf.webfinger.WebFingerUtil.stringVal;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -51,7 +53,10 @@ public class WebFingerServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	
 	private static final String PARAM_RESOURCE = "resource";
+	private static final String PARAM_REL = "rel";
 	private static final String PREFIX = "acct:";
+	
+	public static final String REL_PROFILE = "http://webfinger.net/rel/profile-page";
 
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -66,6 +71,13 @@ public class WebFingerServlet extends HttpServlet {
 		if(StringUtil.isEmpty(username)) {
 			throw new FileNotFoundException();
 		}
+		
+		String[] relParam = req.getParameterValues(PARAM_REL);
+		Collection<String> requestedRel = new HashSet<>();
+		if(relParam != null && relParam.length > 0) {
+			requestedRel.addAll(Arrays.asList(relParam));
+		}
+		requestedRel.remove("");
 		
 		try {
 			List<WebFingerContributor> contributors = WebFingerUtil.findExtensions(WebFingerContributor.class);
@@ -114,22 +126,25 @@ public class WebFingerServlet extends HttpServlet {
 				result.putJsonProperty("aliases", aliasesJson);
 
 				JsonArray linksJson = new JsonJavaArray();
-				
-				if(StringUtil.isNotEmpty(profileUrl)) {
-					JsonObject linkObj = new JsonJavaObject();
-					linkObj.putJsonProperty("rel", "http://webfinger.net/rel/profile-page");
-					linkObj.putJsonProperty("href", profileUrl);
-					linksJson.add(linkObj);
-				}
 				result.putJsonProperty("links", linksJson);
+				
+				if(requestedRel.isEmpty() || requestedRel.contains(REL_PROFILE)) {
+					if(StringUtil.isNotEmpty(profileUrl)) {
+						JsonObject linkObj = new JsonJavaObject();
+						linkObj.putJsonProperty("rel", "http://webfinger.net/rel/profile-page");
+						linkObj.putJsonProperty("href", profileUrl);
+						linksJson.add(linkObj);
+					}
+				}
 				
 				for(WebFingerContributor contrib : contributors) {
 					Collection<String> itemNames = contrib.getItems();
 					Map<String, List<?>> payload = vals.entrySet().stream()
 						.filter(entry -> itemNames.contains(entry.getKey()))
 						.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-					contrib.contribute(payload, result);
+					contrib.contribute(payload, result, requestedRel);
 				}
+				
 				
 				resp.setStatus(HttpServletResponse.SC_OK);
 				resp.setContentType("application/jrd+json");
