@@ -20,6 +20,7 @@ import static org.openntf.webfinger.WebFingerUtil.stringVal;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
@@ -64,12 +65,12 @@ public class WebFingerServlet extends HttpServlet {
 		
 		String resource = req.getParameter(PARAM_RESOURCE);
 		if(StringUtil.isEmpty(resource) || !resource.startsWith(PREFIX)) {
-			throw new FileNotFoundException();
-		}
-		
-		String username = resource.substring(PREFIX.length());
-		if(StringUtil.isEmpty(username)) {
-			throw new FileNotFoundException();
+			resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
+			resp.setContentType("application/json");
+			JsonObject result = new JsonJavaObject();
+			result.putJsonProperty("message", MessageFormat.format("Missing {0} parameter", PARAM_RESOURCE));
+			w.write(result.toString());
+			return;
 		}
 		
 		String[] relParam = req.getParameterValues(PARAM_REL);
@@ -80,6 +81,11 @@ public class WebFingerServlet extends HttpServlet {
 		requestedRel.remove("");
 		
 		try {
+			String username = resource.substring(PREFIX.length());
+			if(StringUtil.isEmpty(username)) {
+				throw new FileNotFoundException();
+			}
+			
 			List<WebFingerContributor> contributors = WebFingerUtil.findExtensions(WebFingerContributor.class);
 			
 			Session session = NotesFactory.createSession();
@@ -159,7 +165,7 @@ public class WebFingerServlet extends HttpServlet {
 			resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
 			resp.setContentType("application/json");
 			JsonObject result = new JsonJavaObject();
-			result.putJsonProperty("message", "User not found or not available");
+			result.putJsonProperty("message", "Resource not found or not available");
 			JsonWriter jw = new JsonWriter(w, false);
 			try {
 				jw.outObject(result);
