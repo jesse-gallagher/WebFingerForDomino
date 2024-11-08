@@ -29,7 +29,7 @@ public class MastodonContributor implements WebFingerContributor {
 	}
 
 	@Override
-	public void contribute(Map<String, List<?>> items, JsonObject root, Collection<String> requestedRel) throws JsonException {
+	public void contribute(Map<String, List<?>> items, JsonObject root, Collection<String> requestedRel, String requestedResource) throws JsonException {
 		String includeMastodon = stringVal(items.get("WebFingerMastodon"));
 		String mastodonHost = stringVal(items.get("MastodonHost"));
 		String mastodonUsername = stringVal(items.get("MastodonUsername"));

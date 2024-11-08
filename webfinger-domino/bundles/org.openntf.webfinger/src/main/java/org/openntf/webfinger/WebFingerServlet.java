@@ -148,7 +148,7 @@ public class WebFingerServlet extends HttpServlet {
 					Map<String, List<?>> payload = vals.entrySet().stream()
 						.filter(entry -> itemNames.contains(entry.getKey()))
 						.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-					contrib.contribute(payload, result, requestedRel);
+					contrib.contribute(payload, result, requestedRel, username);
 				}
 				
 				

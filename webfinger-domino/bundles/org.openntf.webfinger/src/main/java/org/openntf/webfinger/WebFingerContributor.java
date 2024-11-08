@@ -32,7 +32,8 @@ public interface WebFingerContributor {
 	 * @param root the root JSON result object
 	 * @param requestedRel a {@link Collection} of rel values that the client requested. If
 	 *        the client did not request specific rels, this will be empty
+	 * @param requestedResource the originally requested resource name
 	 * @throws JsonException if there is a problem building the JSON response
 	 */
-	void contribute(Map<String, List<?>> items, JsonObject root, Collection<String> requestedRel) throws JsonException;
+	void contribute(Map<String, List<?>> items, JsonObject root, Collection<String> requestedRel, String requestedResource) throws JsonException;
 }
