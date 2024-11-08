@@ -19,11 +19,18 @@ import org.openntf.webfinger.WebFingerContributor;
 
 public class PGPContributor implements WebFingerContributor {
 	public static final String ITEM_WEBFINGERPGP = "WebFingerPGP";
+	public static final String ITEM_PGPFINGERPRINT = "pgpFingerprint";
+	public static final String ITEM_PGPALGORITHM = "pgpAlgorithm";
 	public static final String REL_PGPKEY = "pgpkey";
 
 	@Override
 	public Collection<String> getItems() {
-		return Set.of(PGPServlet.ITEM_PGPKEY, ITEM_WEBFINGERPGP);
+		return Set.of(
+			PGPServlet.ITEM_PGPKEY,
+			ITEM_WEBFINGERPGP,
+			ITEM_PGPFINGERPRINT,
+			ITEM_PGPALGORITHM
+		);
 	}
 
 	@Override
@@ -40,6 +47,21 @@ public class PGPContributor implements WebFingerContributor {
 				link.putJsonProperty("type", PGPServlet.TYPE_KEYS);
 				link.putJsonProperty("href", PGPServlet.EXPECTED_BASE + URLEncoder.encode(requestedResource, StandardCharsets.UTF_8));
 				links.add(link);
+				
+				String fingerprint = stringVal(items.get(ITEM_PGPFINGERPRINT));
+				String algorithm = stringVal(items.get(ITEM_PGPALGORITHM));
+				if(StringUtil.isNotEmpty(fingerprint) || StringUtil.isNotEmpty(algorithm)) {
+					JsonObject props = new JsonJavaObject();
+					
+					if(StringUtil.isNotEmpty(fingerprint)) {
+						props.putJsonProperty("fingerprint", fingerprint);
+					}
+					if(StringUtil.isNotEmpty(algorithm)) {
+						props.putJsonProperty("algorithm", algorithm);
+					}
+					
+					link.putJsonProperty("properties", props);
+				}
 			}
 		}
 	}
