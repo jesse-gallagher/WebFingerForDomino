@@ -21,4 +21,7 @@
 	<extension id="org.openntf.webfinger.WebFingerServlet" name="webfingerservlet" point="org.eclipse.equinox.http.registry.servlets">
 		<servlet alias="/.well-known/webfinger" class="org.openntf.webfinger.WebFingerServlet"/>
 	</extension>
+	<extension point="com.ibm.commons.Extension">
+		<service type="org.openntf.webfinger.WebFingerContributor" class="org.openntf.webfinger.mastodon.MastodonContributor" />
+	</extension>
 </plugin>

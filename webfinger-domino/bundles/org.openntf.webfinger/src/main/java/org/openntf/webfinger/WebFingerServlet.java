@@ -15,30 +15,35 @@
  */
 package org.openntf.webfinger;
 
+import static org.openntf.webfinger.WebFingerUtil.stringVal;
+
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.io.UncheckedIOException;
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
+import java.util.TreeSet;
 import java.util.Vector;
+import java.util.stream.Collectors;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.ibm.commons.util.PathUtil;
 import com.ibm.commons.util.StringUtil;
 import com.ibm.commons.util.io.json.JsonArray;
 import com.ibm.commons.util.io.json.JsonException;
 import com.ibm.commons.util.io.json.JsonJavaArray;
 import com.ibm.commons.util.io.json.JsonJavaObject;
-import com.ibm.commons.util.io.json.JsonObject; 
+import com.ibm.commons.util.io.json.JsonObject;
 import com.ibm.commons.util.io.json.util.JsonWriter;
 
 import lotus.domino.Directory;
 import lotus.domino.DirectoryNavigator;
+import lotus.domino.NotesException;
 import lotus.domino.NotesFactory;
 import lotus.domino.Session;
 
@@ -63,32 +68,37 @@ public class WebFingerServlet extends HttpServlet {
 		}
 		
 		try {
+			List<WebFingerContributor> contributors = WebFingerUtil.findExtensions(WebFingerContributor.class);
+			
 			Session session = NotesFactory.createSession();
 			try {
 				Directory dir = session.getDirectory();
 				Vector<String> names = new Vector<>();
 				names.add(username);
-				Vector<String> items = new Vector<>();
+				Collection<String> items = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
 				items.add("WebFingerEnable");
 				items.add("WebFingerAliases");
 				items.add("WebFingerProfile");
-				items.add("WebFingerMastodon");
-				items.add("MastodonUsername");
-				items.add("MastodonHost");
-				DirectoryNavigator nav = dir.lookupNames("$Users", names, items, false);
+				
+				// Add items requested by contributors
+				for(WebFingerContributor contrib : contributors) {
+					items.addAll(contrib.getItems());
+				}
+				
+				Vector<String> itemsList = new Vector<String>(items);
+				DirectoryNavigator nav = dir.lookupNames("$Users", names, itemsList, false);
 				if(!nav.findFirstMatch()) {
 					throw new FileNotFoundException();
 				}
 				
-				String enable = stringVal(nav.getFirstItemValue());
+				Map<String, List<?>> vals = toMap(nav, itemsList);
+				
+				String enable = stringVal(vals.get("WebFingerEnable"));
 				if(!"1".equals(enable)) {
 					throw new FileNotFoundException();
 				}
-				Vector<?> aliases = nav.getNextItemValue();
-				String profileUrl = stringVal(nav.getNextItemValue());
-				String includeMastodon = stringVal(nav.getNextItemValue());
-				String mastodonUsername = stringVal(nav.getNextItemValue());
-				String mastodonHost = stringVal(nav.getNextItemValue());
+				List<?> aliases = vals.get("WebFingerAliases");
+				String profileUrl = stringVal(vals.get("WebFingerProfile"));
 				
 				// Build the WebFinger response object
 				JsonObject result = new JsonJavaObject();
@@ -111,27 +121,15 @@ public class WebFingerServlet extends HttpServlet {
 					linkObj.putJsonProperty("href", profileUrl);
 					linksJson.add(linkObj);
 				}
-				
-				if("1".equals(includeMastodon) && StringUtil.isNotEmpty(mastodonHost)) {
-					if(!(mastodonHost.startsWith("http://") || mastodonHost.startsWith("https://"))) {
-						mastodonHost = "https://" + mastodonHost;
-					}
-					
-					if(StringUtil.isNotEmpty(mastodonUsername)) {
-						JsonObject self = new JsonJavaObject();
-						self.putJsonProperty("rel", "self");
-						self.putJsonProperty("type", "application/activity+json");
-						self.putJsonProperty("href", PathUtil.concat(mastodonHost, "/users/" + urlEncode(mastodonUsername), '/'));
-						linksJson.add(self);
-					}
-					
-					JsonObject subscribe = new JsonJavaObject();
-					subscribe.putJsonProperty("rel", "http://ostatus.org/schema/1.0/subscribe");
-					subscribe.putJsonProperty("template", PathUtil.concat(mastodonHost, "/authorize_interaction?uri={uri}", '/'));
-					linksJson.add(subscribe);
-				}
 				result.putJsonProperty("links", linksJson);
 				
+				for(WebFingerContributor contrib : contributors) {
+					Collection<String> itemNames = contrib.getItems();
+					Map<String, List<?>> payload = vals.entrySet().stream()
+						.filter(entry -> itemNames.contains(entry.getKey()))
+						.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+					contrib.contribute(payload, result);
+				}
 				
 				resp.setStatus(HttpServletResponse.SC_OK);
 				resp.setContentType("application/jrd+json");
@@ -160,19 +158,13 @@ public class WebFingerServlet extends HttpServlet {
 		}
 	}
 	
-	private String stringVal(Vector<?> vec) {
-		if(vec == null || vec.isEmpty()) {
-			return null;
-		} else {
-			return StringUtil.toString(vec.get(0));
+	private Map<String, List<?>> toMap(DirectoryNavigator nav, List<String> itemNames) throws NotesException {
+		Map<String, List<?>> result = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+		for(int i = 0; i < itemNames.size(); i++) {
+			String itemName = itemNames.get(i);
+			List<?> value = i == 0 ? nav.getFirstItemValue() : nav.getNextItemValue();
+			result.put(itemName, value);
 		}
-	}
-	
-	private String urlEncode(String val) {
-		try {
-			return URLEncoder.encode(val, "UTF-8");
-		} catch (UnsupportedEncodingException e) {
-			throw new UncheckedIOException(e);
-		}
+		return result;
 	}
 }
