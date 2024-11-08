@@ -26,9 +26,9 @@
 	</extension>
 	
 	<extension point="com.ibm.commons.Extension">
-		<service type="org.openntf.webfinger.WebFingerContributor" class="org.openntf.webfinger.mastodon.MastodonContributor" />
+		<service type="org.openntf.webfinger.ext.WebFingerContributor" class="org.openntf.webfinger.mastodon.MastodonContributor" />
 	</extension>
 	<extension point="com.ibm.commons.Extension">
-		<service type="org.openntf.webfinger.WebFingerContributor" class="org.openntf.webfinger.pgp.PGPContributor" />
+		<service type="org.openntf.webfinger.ext.WebFingerContributor" class="org.openntf.webfinger.pgp.PGPContributor" />
 	</extension>
 </plugin>

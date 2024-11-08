@@ -44,6 +44,8 @@ import com.ibm.commons.util.io.json.JsonJavaObject;
 import com.ibm.commons.util.io.json.JsonObject;
 import com.ibm.commons.util.io.json.util.JsonWriter;
 
+import org.openntf.webfinger.ext.WebFingerContributor;
+
 import lotus.domino.Directory;
 import lotus.domino.DirectoryNavigator;
 import lotus.domino.NotesException;

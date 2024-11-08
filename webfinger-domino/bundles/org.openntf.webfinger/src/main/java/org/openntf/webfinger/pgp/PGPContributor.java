@@ -15,7 +15,7 @@ import com.ibm.commons.util.io.json.JsonException;
 import com.ibm.commons.util.io.json.JsonJavaObject;
 import com.ibm.commons.util.io.json.JsonObject;
 
-import org.openntf.webfinger.WebFingerContributor;
+import org.openntf.webfinger.ext.WebFingerContributor;
 
 public class PGPContributor implements WebFingerContributor {
 	public static final String ITEM_WEBFINGERPGP = "WebFingerPGP";

@@ -42,7 +42,7 @@
 				<configuration>
 					<instructions>
 						<Bundle-SymbolicName>${project.artifactId};singleton:=true</Bundle-SymbolicName>
-						<Export-Package></Export-Package>
+						<_exportcontents>org.openntf.webfinger.ext</_exportcontents>
 					</instructions>
 				</configuration>
 			</plugin>

@@ -1,4 +1,4 @@
-package org.openntf.webfinger;
+package org.openntf.webfinger.ext;
 
 import java.util.Collection;
 import java.util.List;
